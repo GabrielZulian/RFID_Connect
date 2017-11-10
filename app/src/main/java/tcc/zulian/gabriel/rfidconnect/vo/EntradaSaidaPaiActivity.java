@@ -37,7 +37,11 @@ public abstract class EntradaSaidaPaiActivity extends AppCompatActivity {
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                confirmaOperacao();
+                if (edtQntdOperacao.getText().toString().isEmpty() || Integer.valueOf(edtQntdOperacao.getText().toString()) == 0) {
+                    Toast.makeText(getApplicationContext(), "Quantidades inválidas", Toast.LENGTH_SHORT).show();
+                    return;
+                } else
+                    confirmaOperacao();
             }
         });
 
@@ -49,7 +53,7 @@ public abstract class EntradaSaidaPaiActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Erro", Toast.LENGTH_SHORT).show();
                             return;
                         } else
-                        buscaItem();
+                            buscaItem();
                 }
             }
         });

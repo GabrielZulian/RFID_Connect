@@ -23,14 +23,14 @@ import tcc.zulian.gabriel.rfidconnect.vo.SaidaActivity;
 /**
  * Created by User on 14/08/2017.
  */
-public class ItemVerificaEstoqueItemSaidaDAO extends AsyncTask<String, Void, String> {
+public class ItemVerificaEstoqueSaidaDAO extends AsyncTask<String, Void, String> {
     private Context context;
     private ItemBO itemBO;
 
     ProgressDialog dialog;
     SaidaActivity saidaActivity;
 
-    public ItemVerificaEstoqueItemSaidaDAO(SaidaActivity saidaActivity, ItemBO itemBO) {
+    public ItemVerificaEstoqueSaidaDAO(SaidaActivity saidaActivity, ItemBO itemBO) {
         this.saidaActivity = saidaActivity;
         this.context = saidaActivity;
         this.itemBO = itemBO;
