@@ -1,4 +1,4 @@
-package tcc.zulian.gabriel.rfidconnect.dao;
+package tcc.zulian.gabriel.rfidconnect.dao.itens.asynctasks;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -17,22 +17,22 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import tcc.zulian.gabriel.rfidconnect.bo.FuncionarioBO;
+import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
 
 /**
- * Created by User on 14/08/2017.
+ * Created by User on 07/11/2017.
  */
-public class ControleAcessoDAO extends AsyncTask<String, Void, String> {
-
+public class GravaItem extends AsyncTask<String, Void, String> {
     private Context context;
-    FuncionarioBO funcionarioBO;
+    private ItemBO itemBO;
+
     ProgressDialog dialog;
     Activity activity;
 
-    public ControleAcessoDAO(Activity activity, Context context, FuncionarioBO funcionarioBO) {
+    public GravaItem(Activity activity, Context context, ItemBO itemBO) {
         this.activity = activity;
         this.context = context;
-        this.funcionarioBO = funcionarioBO;
+        this.itemBO = itemBO;
     }
 
     @Override
@@ -45,10 +45,13 @@ public class ControleAcessoDAO extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... strings) {
+
         try {
-            String link = "http://vinhosopra.com.br/json/rfid/insere_acesso.php";
-            String data = URLEncoder.encode("codigo", "UTF-8") + "=" + URLEncoder.encode(
-                    String.valueOf(funcionarioBO.getCodigo()), "UTF-8" );
+            String link = "http://vinhosopra.com.br/json/rfid/cad_item.php";
+            String data = URLEncoder.encode("descricao", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getDescricao()), "UTF-8" );
+            data += "&" + URLEncoder.encode("unidade", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getUnidade()), "UTF-8" );
+            data += "&" + URLEncoder.encode("numero_serial", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getNumeroSerial()), "UTF-8" );
+            data += "&" + URLEncoder.encode("peso", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getPeso()), "UTF-8" );
 
             URL url = new URL(link);
             URLConnection conn = url.openConnection();
@@ -79,7 +82,6 @@ public class ControleAcessoDAO extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-
         Log.d("Resultado", "[" + result + "]");
 
         try {
@@ -90,13 +92,12 @@ public class ControleAcessoDAO extends AsyncTask<String, Void, String> {
             if (success == 0) {
                 Toast.makeText(context, "OOPs! Algo deu errado.", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(context, "Acesso enviado com sucesso!", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Inserido com sucesso no banco!", Toast.LENGTH_LONG).show();
             }
 
         } catch (JSONException e) {
             Toast.makeText(context, "OOPs! Algo deu errado." + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
         dialog.dismiss();
     }
 }

@@ -1,4 +1,4 @@
-package tcc.zulian.gabriel.rfidconnect.vo;
+package tcc.zulian.gabriel.rfidconnect.vo.itens;
 
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +22,7 @@ public abstract class EntradaSaidaPaiActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entrada);
 
-        edtCodigo = (EditText) findViewById(R.id.edtCodigo);
+        edtCodigo = (EditText) findViewById(R.id.edtCodigoFunc);
         edtDescricao = (EditText) findViewById(R.id.edtDescricao);
         edtQntdEstoque = (EditText) findViewById(R.id.edtQntdEstoque);
         edtQntdOperacao = (EditText) findViewById(R.id.edtQntdOperacao);
@@ -33,6 +33,8 @@ public abstract class EntradaSaidaPaiActivity extends AppCompatActivity {
         edtQntdEstoque.setTextColor(Color.BLACK);
         edtDescricao.setEnabled(false);
         edtDescricao.setTextColor(Color.BLACK);
+        edtCodigo.setEnabled(false);
+        edtCodigo.setTextColor(Color.BLACK);
 
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,18 +47,18 @@ public abstract class EntradaSaidaPaiActivity extends AppCompatActivity {
             }
         });
 
-        edtCodigo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                    if (!b) {
-                        if (edtCodigo.getText().toString().isEmpty() || Integer.parseInt(edtCodigo.getText().toString()) <= 0) {
-                            Toast.makeText(getApplicationContext(), "Erro", Toast.LENGTH_SHORT).show();
-                            return;
-                        } else
-                            buscaItem();
-                }
-            }
-        });
+//        edtCodigo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View view, boolean b) {
+//                    if (!b) {
+//                        if (edtCodigo.getText().toString().isEmpty() || Integer.parseInt(edtCodigo.getText().toString()) <= 0) {
+//                            Toast.makeText(getApplicationContext(), "Erro", Toast.LENGTH_SHORT).show();
+//                            return;
+//                        } else
+//                            buscaItem();
+//                }
+//            }
+//        });
     }
 
     public abstract void buscaItem();

@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewTag"
-        android:text="Aproxime a Tag para realizar a leitura"
+        android:text="Aproxime a Tag para realizar a leitura e desbloquear as operações"
         android:textSize="20dp"
         android:layout_above="@+id/btnGravar"
         android:layout_alignParentStart="true"

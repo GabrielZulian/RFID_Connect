@@ -1,12 +1,12 @@
-package tcc.zulian.gabriel.rfidconnect.dao;
+package tcc.zulian.gabriel.rfidconnect.dao.funcionarios.asynctasks;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,28 +17,27 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
-import tcc.zulian.gabriel.rfidconnect.vo.EntradaActivity;
+import tcc.zulian.gabriel.rfidconnect.bo.FuncionarioBO;
 
 /**
  * Created by User on 14/08/2017.
  */
-public class ItemConfirmaEntradaDAO extends AsyncTask<String, Void, String> {
+public class ControleAcesso extends AsyncTask<String, Void, String> {
+
     private Context context;
-    private ItemBO itemBO;
-
+    FuncionarioBO funcionarioBO;
     ProgressDialog dialog;
-    EntradaActivity entradaActivity;
+    Activity activity;
 
-    public ItemConfirmaEntradaDAO(EntradaActivity entradaActivity, ItemBO itemBO) {
-        this.entradaActivity = entradaActivity;
-        this.context = entradaActivity;
-        this.itemBO = itemBO;
+    public ControleAcesso(Activity activity, Context context, FuncionarioBO funcionarioBO) {
+        this.activity = activity;
+        this.context = context;
+        this.funcionarioBO = funcionarioBO;
     }
 
     @Override
     protected void onPreExecute() {
-        dialog = new ProgressDialog(entradaActivity);
+        dialog = new ProgressDialog(activity);
         dialog.setTitle("Carregando...");
         dialog.setIndeterminate(true);
         dialog.show();
@@ -46,11 +45,10 @@ public class ItemConfirmaEntradaDAO extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... strings) {
-
         try {
-            String link = "http://vinhosopra.com.br/json/rfid/altera_estoque.php";
-            String data = URLEncoder.encode("codigo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getCodigo()), "UTF-8" );
-            data += "&" + URLEncoder.encode("quantidade", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getEstoqueBO().getQuantidade()), "UTF-8" );
+            String link = "http://vinhosopra.com.br/json/rfid/insere_acesso.php";
+            String data = URLEncoder.encode("codigo", "UTF-8") + "=" + URLEncoder.encode(
+                    String.valueOf(funcionarioBO.getCodigo()), "UTF-8" );
 
             URL url = new URL(link);
             URLConnection conn = url.openConnection();
@@ -92,19 +90,13 @@ public class ItemConfirmaEntradaDAO extends AsyncTask<String, Void, String> {
             if (success == 0) {
                 Toast.makeText(context, "OOPs! Algo deu errado.", Toast.LENGTH_LONG).show();
             } else {
-                JSONArray jEstoque = jObjectGeral.getJSONArray("estoques");
-                JSONObject objeto = jEstoque.getJSONObject(0);
-                itemBO.getEstoqueBO().setQuantidade(objeto.getInt("quantidade"));
-                itemBO.setDescricao(objeto.getString("descricao"));
+                Toast.makeText(context, "Acesso enviado com sucesso!", Toast.LENGTH_LONG).show();
             }
 
         } catch (JSONException e) {
             Toast.makeText(context, "OOPs! Algo deu errado." + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        Toast.makeText(context, "Entrada lançada com sucesso!", Toast.LENGTH_LONG).show();
-
-        entradaActivity.onBackPressed();
         dialog.dismiss();
     }
 }

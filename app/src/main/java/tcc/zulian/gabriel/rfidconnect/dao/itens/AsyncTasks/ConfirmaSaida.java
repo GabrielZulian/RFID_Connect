@@ -1,12 +1,12 @@
-package tcc.zulian.gabriel.rfidconnect.dao;
+package tcc.zulian.gabriel.rfidconnect.dao.itens.asynctasks;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,26 +18,27 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.SaidaActivity;
 
 /**
- * Created by User on 07/11/2017.
+ * Created by User on 14/08/2017.
  */
-public class GravaItemDAO extends AsyncTask<String, Void, String> {
+public class ConfirmaSaida extends AsyncTask<String, Void, String> {
     private Context context;
     private ItemBO itemBO;
 
     ProgressDialog dialog;
-    Activity activity;
+    SaidaActivity saidaActivity;
 
-    public GravaItemDAO(Activity activity, Context context, ItemBO itemBO) {
-        this.activity = activity;
-        this.context = context;
+    public ConfirmaSaida(SaidaActivity saidaActivity, ItemBO itemBO) {
+        this.saidaActivity = saidaActivity;
+        this.context = saidaActivity;
         this.itemBO = itemBO;
     }
 
     @Override
     protected void onPreExecute() {
-        dialog = new ProgressDialog(activity);
+        dialog = new ProgressDialog(saidaActivity);
         dialog.setTitle("Carregando...");
         dialog.setIndeterminate(true);
         dialog.show();
@@ -47,11 +48,9 @@ public class GravaItemDAO extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... strings) {
 
         try {
-            String link = "http://vinhosopra.com.br/json/rfid/cad_item.php";
-            String data = URLEncoder.encode("descricao", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getDescricao()), "UTF-8" );
-            data += "&" + URLEncoder.encode("unidade", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getUnidade()), "UTF-8" );
-            data += "&" + URLEncoder.encode("numero_serial", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getNumeroSerial()), "UTF-8" );
-            data += "&" + URLEncoder.encode("peso", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getPeso()), "UTF-8" );
+            String link = "http://vinhosopra.com.br/json/rfid/altera_estoque.php";
+            String data = URLEncoder.encode("codigo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getCodigo()), "UTF-8" );
+            data += "&" + URLEncoder.encode("quantidade", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(itemBO.getEstoqueBO().getQuantidade()), "UTF-8" );
 
             URL url = new URL(link);
             URLConnection conn = url.openConnection();
@@ -82,6 +81,7 @@ public class GravaItemDAO extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+
         Log.d("Resultado", "[" + result + "]");
 
         try {
@@ -92,12 +92,14 @@ public class GravaItemDAO extends AsyncTask<String, Void, String> {
             if (success == 0) {
                 Toast.makeText(context, "OOPs! Algo deu errado.", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(context, "Inserido com sucesso no banco!", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Saida lançada com sucesso!", Toast.LENGTH_LONG).show();
             }
 
         } catch (JSONException e) {
             Toast.makeText(context, "OOPs! Algo deu errado." + e.getMessage(), Toast.LENGTH_LONG).show();
         }
+
+        saidaActivity.onBackPressed();
         dialog.dismiss();
     }
 }

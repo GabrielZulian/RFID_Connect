@@ -1,11 +1,12 @@
-package tcc.zulian.gabriel.rfidconnect.vo;
+package tcc.zulian.gabriel.rfidconnect.vo.itens;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import tcc.zulian.gabriel.rfidconnect.R;
 import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
-import tcc.zulian.gabriel.rfidconnect.dao.ItemConfirmaEntradaDAO;
-import tcc.zulian.gabriel.rfidconnect.dao.ItemVerificaEstoqueEntradaDAO;
+import tcc.zulian.gabriel.rfidconnect.dao.itens.asynctasks.ConfirmaEntrada;
+import tcc.zulian.gabriel.rfidconnect.dao.itens.asynctasks.VerificaEstoqueEntrada;
 
 /**
  * Created by User on 16/10/2017.
@@ -17,10 +18,16 @@ public class EntradaActivity extends EntradaSaidaPaiActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entrada);
 
+        Bundle bundle = getIntent().getExtras();
+
+        int codigo = bundle.getInt("codigo");
+
+        edtCodigo.setText(String.valueOf(codigo));
         tvQntdOperacao.setText("Quantidade Entrada");
         btnConfirmar.setText("Confirmar Entrada");
+        Log.d("passou", "passou");
+        buscaItem();
     }
 
     @Override
@@ -28,7 +35,7 @@ public class EntradaActivity extends EntradaSaidaPaiActivity {
         Integer codigo = Integer.parseInt(edtCodigo.getText().toString());
         itemBO = new ItemBO();
         itemBO.setCodigo(codigo);
-        new ItemVerificaEstoqueEntradaDAO(EntradaActivity.this, itemBO).execute();
+        new VerificaEstoqueEntrada(EntradaActivity.this, itemBO).execute();
     }
 
     @Override
@@ -36,6 +43,6 @@ public class EntradaActivity extends EntradaSaidaPaiActivity {
         Integer quantidadeAtual = Integer.parseInt(edtQntdEstoque.getText().toString());
         Integer quantidadeEntrada = Integer.parseInt(edtQntdOperacao.getText().toString());
         itemBO.getEstoqueBO().setQuantidade(quantidadeAtual+quantidadeEntrada);
-        new ItemConfirmaEntradaDAO(this, itemBO).execute();
+        new ConfirmaEntrada(this, itemBO).execute();
     }
 }

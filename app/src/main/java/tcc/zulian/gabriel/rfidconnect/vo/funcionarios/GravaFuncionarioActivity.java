@@ -1,28 +1,37 @@
-package tcc.zulian.gabriel.rfidconnect.vo;
+package tcc.zulian.gabriel.rfidconnect.vo.funcionarios;
 
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import tcc.zulian.gabriel.rfidconnect.R;
-import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
+import tcc.zulian.gabriel.rfidconnect.bo.FuncionarioBO;
 import tcc.zulian.gabriel.rfidconnect.bo.NFCOperations;
 import tcc.zulian.gabriel.rfidconnect.bo.exceptions.NFCNotEnabled;
 import tcc.zulian.gabriel.rfidconnect.bo.exceptions.NFCNotSupported;
-import tcc.zulian.gabriel.rfidconnect.dao.GravaItemDAO;
+import tcc.zulian.gabriel.rfidconnect.dao.funcionarios.asynctasks.ConsultaUltimoCodigoFuncionario;
+import tcc.zulian.gabriel.rfidconnect.dao.funcionarios.asynctasks.GravaFuncionario;
 
-public class GravaItemActivity extends AppCompatActivity {
+public class GravaFuncionarioActivity extends AppCompatActivity {
 
-    EditText edtDescricao, edtUnidade, edtPeso, edtSerial;
+    public EditText edtCodigo;
+    EditText edtNome;
+    EditText edtCPF;
+    EditText edtFuncao;
     Button btnFinalizar;
 
     NFCOperations nfcOperations;
@@ -32,15 +41,28 @@ public class GravaItemActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_grava_item);
+        setContentView(R.layout.activity_grava_funcionario);
 
-        edtDescricao = (EditText) findViewById(R.id.edtDescricao);
-        edtUnidade = (EditText) findViewById(R.id.edtUnidade);
-        edtPeso = (EditText) findViewById(R.id.edtPeso);
-        edtSerial = (EditText) findViewById(R.id.edtSerial);
-        btnFinalizar = (Button) findViewById(R.id.btnFinalizarItem);
+        edtCodigo = (EditText) findViewById(R.id.edtCodigoFunc);
+        edtNome = (EditText) findViewById(R.id.edtNome);
+        edtCPF = (EditText) findViewById(R.id.edtCPF);
+        edtFuncao = (EditText) findViewById(R.id.edtFuncao);
+        btnFinalizar = (Button) findViewById(R.id.btnFinalizarFunc);
+        edtCodigo.setEnabled(false);
+        edtCodigo.setFocusable(false);
+        edtCodigo.setTextColor(Color.BLACK);
+
+        btnFinalizar.setEnabled(false);
 
         nfcOperations = new NFCOperations(this);
+        new ConsultaUltimoCodigoFuncionario(this).execute();
+
+        btnFinalizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
     }
 
     @Override
@@ -79,25 +101,37 @@ public class GravaItemActivity extends AppCompatActivity {
         // It is the time to write the tag
         currentTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-        ItemBO itemBO = new ItemBO();
+        FuncionarioBO funcionarioBO = new FuncionarioBO();
         String textoASerGravado = null;
 
-        if (edtDescricao.getText().toString().equals("") || edtUnidade.getText().toString().equals("")
-                || edtPeso.getText().toString().equals("") || edtSerial.getText().toString().equals("")) {
+        if (edtCodigo.getText().toString().isEmpty() || edtNome.getText().toString().isEmpty()
+                || edtCPF.getText().toString().isEmpty() || edtFuncao.getText().toString().isEmpty()) {
             Toast.makeText(this.getApplicationContext(), "String Vazia!", Toast.LENGTH_LONG).show();
             return;
         } else {
 
+            funcionarioBO.setCodigo(Integer.valueOf(edtCodigo.getText().toString()));
+            funcionarioBO.setNome(edtNome.getText().toString());
+            funcionarioBO.setCpf(edtCPF.getText().toString());
+            funcionarioBO.setFuncao(edtFuncao.getText().toString());
 
-            itemBO.setDescricao(edtDescricao.getText().toString());
-            itemBO.setUnidade(edtUnidade.getText().toString());
-            itemBO.setPeso(Double.parseDouble(edtPeso.getText().toString()));
-            itemBO.setNumeroSerial(edtSerial.getText().toString());
+            JSONObject json = new JSONObject();
 
-            textoASerGravado = "TIPO=PRODUTO;{\"descricao\":\""+ edtDescricao.getText().toString() + "\"" +
-                    ",\"unidade\":\"" + edtUnidade.getText().toString() + "\"" +
-                    ",\"peso\":\"" + edtPeso.getText().toString() + "\"" +
-                    ",\"numero_serial\":\"" + edtSerial.getText().toString() + "\"}";
+            try {
+                json.put("codigo", funcionarioBO.getCodigo());
+                json.put("nome", funcionarioBO.getNome());
+                json.put("cpf", funcionarioBO.getCpf());
+                json.put("funcao", funcionarioBO.getFuncao());
+            } catch (JSONException e) {
+                Toast.makeText(this.getApplicationContext(), "Erro ao gravar JSON!", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            String stringJson = "TIPO=FUNCIONARIO;" + json.toString();
+
+            Log.d("JSON F", stringJson);
+
+            textoASerGravado = stringJson;
         }
 
         message = nfcOperations.createTextMessage(textoASerGravado);
@@ -105,10 +139,13 @@ public class GravaItemActivity extends AppCompatActivity {
         if (message != null) {
             nfcOperations.writeTag(currentTag, message);
             Toast.makeText(this.getApplicationContext(), "Tag gravada com sucesso", Toast.LENGTH_LONG).show();
-            new GravaItemDAO(GravaItemActivity.this, GravaItemActivity.this.getApplicationContext(), itemBO).execute();
+            new GravaFuncionario(GravaFuncionarioActivity.this, funcionarioBO).execute();
+            btnFinalizar.setEnabled(true);
+            edtNome.setEnabled(false);
+            edtFuncao.setEnabled(false);
+            edtCPF.setEnabled(false);
         } else {
             Toast.makeText(this.getApplicationContext(), "Erro na gravação", Toast.LENGTH_LONG).show();
         }
     }
 }
-

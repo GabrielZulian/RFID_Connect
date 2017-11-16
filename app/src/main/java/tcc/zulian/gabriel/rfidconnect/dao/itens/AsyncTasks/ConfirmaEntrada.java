@@ -1,4 +1,4 @@
-package tcc.zulian.gabriel.rfidconnect.dao;
+package tcc.zulian.gabriel.rfidconnect.dao.itens.asynctasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -18,28 +18,27 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
-import tcc.zulian.gabriel.rfidconnect.vo.EntradaActivity;
-import tcc.zulian.gabriel.rfidconnect.vo.SaidaActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.EntradaActivity;
 
 /**
  * Created by User on 14/08/2017.
  */
-public class ItemConfirmaSaidaDAO extends AsyncTask<String, Void, String> {
+public class ConfirmaEntrada extends AsyncTask<String, Void, String> {
     private Context context;
     private ItemBO itemBO;
 
     ProgressDialog dialog;
-    SaidaActivity saidaActivity;
+    EntradaActivity entradaActivity;
 
-    public ItemConfirmaSaidaDAO(SaidaActivity saidaActivity, ItemBO itemBO) {
-        this.saidaActivity = saidaActivity;
-        this.context = saidaActivity;
+    public ConfirmaEntrada(EntradaActivity entradaActivity, ItemBO itemBO) {
+        this.entradaActivity = entradaActivity;
+        this.context = entradaActivity;
         this.itemBO = itemBO;
     }
 
     @Override
     protected void onPreExecute() {
-        dialog = new ProgressDialog(saidaActivity);
+        dialog = new ProgressDialog(entradaActivity);
         dialog.setTitle("Carregando...");
         dialog.setIndeterminate(true);
         dialog.show();
@@ -83,7 +82,7 @@ public class ItemConfirmaSaidaDAO extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        Log.d("Resultado", "[" + result + "]");
+        Log.d("Resultado grava alt", "[" + result + "]");
 
         try {
             JSONObject jObjectGeral = new JSONObject(result);
@@ -93,19 +92,13 @@ public class ItemConfirmaSaidaDAO extends AsyncTask<String, Void, String> {
             if (success == 0) {
                 Toast.makeText(context, "OOPs! Algo deu errado.", Toast.LENGTH_LONG).show();
             } else {
-                JSONArray jEstoque = jObjectGeral.getJSONArray("estoques");
-                JSONObject objeto = jEstoque.getJSONObject(0);
-                itemBO.getEstoqueBO().setQuantidade(objeto.getInt("quantidade"));
-                itemBO.setDescricao(objeto.getString("descricao"));
+                Toast.makeText(context, "Entrada lançada com sucesso!", Toast.LENGTH_LONG).show();
             }
-
         } catch (JSONException e) {
             Toast.makeText(context, "OOPs! Algo deu errado." + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        Toast.makeText(context, "Saida lançada com sucesso!", Toast.LENGTH_LONG).show();
-
-        saidaActivity.onBackPressed();
+        entradaActivity.onBackPressed();
         dialog.dismiss();
     }
 }

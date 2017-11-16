@@ -24,8 +24,12 @@ import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
 import tcc.zulian.gabriel.rfidconnect.bo.NFCOperations;
 import tcc.zulian.gabriel.rfidconnect.bo.exceptions.NFCNotEnabled;
 import tcc.zulian.gabriel.rfidconnect.bo.exceptions.NFCNotSupported;
-import tcc.zulian.gabriel.rfidconnect.dao.ControleAcessoDAO;
-import tcc.zulian.gabriel.rfidconnect.dao.ItemEstoqueDAO;
+import tcc.zulian.gabriel.rfidconnect.dao.funcionarios.asynctasks.ControleAcesso;
+import tcc.zulian.gabriel.rfidconnect.dao.itens.ItemEstoqueDAO;
+import tcc.zulian.gabriel.rfidconnect.vo.funcionarios.GravaFuncionarioActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.EntradaActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.GravaItemActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.SaidaActivity;
 
 public class PrincipalActivity extends AppCompatActivity {
 
@@ -61,7 +65,7 @@ public class PrincipalActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (funcionarioBO != null)
-                    new ControleAcessoDAO(PrincipalActivity.this, PrincipalActivity.this.getApplicationContext(), funcionarioBO).execute();
+                    new ControleAcesso(PrincipalActivity.this, PrincipalActivity.this.getApplicationContext(), funcionarioBO).execute();
                 else
                     Toast.makeText(PrincipalActivity.this.getApplicationContext(), "Tag funcionário não lida", Toast.LENGTH_LONG).show();
             }
@@ -70,9 +74,12 @@ public class PrincipalActivity extends AppCompatActivity {
         btnEntrada.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(PrincipalActivity.this, EntradaActivity.class);
-                intent.putExtra("codigo", itemBO.getCodigo());
-                startActivity(intent);
+                if (itemBO != null) {
+                    Intent intent = new Intent(PrincipalActivity.this, EntradaActivity.class);
+                    intent.putExtra("codigo", itemBO.getCodigo());
+                    startActivity(intent);
+                } else
+                    Toast.makeText(PrincipalActivity.this.getApplicationContext(), "Tag de item não lida", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -173,7 +180,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
         String msg = nfcOperations.readTag(currentTag);
 
-        if (!msg.isEmpty())
+        if (msg!= null && !msg.isEmpty())
             msg = msg.substring(3, msg.length());
 
         String tipo = msg.substring(0, msg.indexOf(";"));
@@ -191,6 +198,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 Log.d("msg", msg);
 
+                itemBO.setCodigo(object.getInt("codigo"));
                 itemBO.setDescricao(object.getString("descricao"));
                 itemBO.setUnidade(object.getString("unidade"));
                 itemBO.setPeso(object.getDouble("peso"));
@@ -204,7 +212,7 @@ public class PrincipalActivity extends AppCompatActivity {
                     "Descrição=" + itemBO.getDescricao() + "\n" +
                     "Unidade=" + itemBO.getUnidade() + "\n" +
                     "Peso=" + itemBO.getPeso() + "\n" +
-                    "Serial=" + itemBO.getNumeroSerial());
+                    "EAN-13=" + itemBO.getNumeroSerial());
 
         } else if (tipo.equals("TIPO=FUNCIONARIO")) {
             btnControleAcesso.setEnabled(true);
@@ -217,8 +225,8 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 Log.d("json", object.toString());
 
-                funcionarioBO.setNome(object.getString("nome"));
                 funcionarioBO.setCodigo(object.getInt("codigo"));
+                funcionarioBO.setNome(object.getString("nome"));
                 funcionarioBO.setCpf(object.getString("cpf"));
                 funcionarioBO.setFuncao(object.getString("funcao"));
 

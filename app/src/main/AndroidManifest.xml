@@ -50,12 +50,12 @@
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/filter_nfc" />
         </activity>
-        <activity android:name=".vo.EntradaActivity">
+        <activity android:name=".vo.itens.EntradaActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="tcc.zulian.gabriel.rfidconnect.vo.PrincipalActivity" />
         </activity>
-        <activity android:name=".vo.SaidaActivity">
+        <activity android:name=".vo.itens.SaidaActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="tcc.zulian.gabriel.rfidconnect.vo.PrincipalActivity" />
@@ -68,9 +68,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".vo.EntradaSaidaPaiActivity" />
-        <activity android:name=".vo.GravaItemActivity" />
-        <activity android:name=".vo.GravaFuncionarioActivity"></activity>
+        <activity android:name=".vo.itens.EntradaSaidaPaiActivity" />
+        <activity android:name=".vo.itens.GravaItemActivity" />
+        <activity android:name=".vo.funcionarios.GravaFuncionarioActivity"></activity>
     </application>
 
 </manifest>

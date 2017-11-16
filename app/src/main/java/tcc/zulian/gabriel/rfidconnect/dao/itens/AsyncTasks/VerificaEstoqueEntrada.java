@@ -1,10 +1,8 @@
-package tcc.zulian.gabriel.rfidconnect.dao;
+package tcc.zulian.gabriel.rfidconnect.dao.itens.asynctasks;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,27 +18,27 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
-import tcc.zulian.gabriel.rfidconnect.vo.PrincipalActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.EntradaActivity;
 
 /**
  * Created by User on 14/08/2017.
  */
-public class ItemEstoqueDAO extends AsyncTask<String, Void, String> {
+public class VerificaEstoqueEntrada extends AsyncTask<String, Void, String> {
     private Context context;
     private ItemBO itemBO;
 
     ProgressDialog dialog;
-    Activity activity;
+    EntradaActivity entradaActivity;
 
-    public ItemEstoqueDAO(Activity activity, Context context, ItemBO itemBO) {
-        this.activity = activity;
-        this.context = context;
+    public VerificaEstoqueEntrada(EntradaActivity entradaActivity, ItemBO itemBO) {
+        this.entradaActivity = entradaActivity;
+        this.context = entradaActivity;
         this.itemBO = itemBO;
     }
 
     @Override
     protected void onPreExecute() {
-        dialog = new ProgressDialog(activity);
+        dialog = new ProgressDialog(entradaActivity);
         dialog.setTitle("Carregando...");
         dialog.setIndeterminate(true);
         dialog.show();
@@ -97,21 +95,18 @@ public class ItemEstoqueDAO extends AsyncTask<String, Void, String> {
                 JSONArray jEstoque = jObjectGeral.getJSONArray("estoques");
                 JSONObject objeto = jEstoque.getJSONObject(0);
                 itemBO.getEstoqueBO().setQuantidade(objeto.getInt("quantidade"));
+                itemBO.setDescricao(objeto.getString("descricao"));
             }
 
         } catch (JSONException e) {
             Toast.makeText(context, "OOPs! Algo deu errado." + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        PrincipalActivity.itemBO = itemBO;
+        Log.d("TESTE=", itemBO.getEstoqueBO().getQuantidade() + "");
+
+        entradaActivity.edtDescricao.setText(itemBO.getDescricao());
+        entradaActivity.edtQntdEstoque.setText(String.valueOf(itemBO.getEstoqueBO().getQuantidade()));
 
         dialog.dismiss();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Quantidade em estoque");
-        builder.setMessage(itemBO.getEstoqueBO().getQuantidade() + "");
-        builder.show();
-
-        Log.d("TESTE=", itemBO.getEstoqueBO().getQuantidade() + "");
     }
 }

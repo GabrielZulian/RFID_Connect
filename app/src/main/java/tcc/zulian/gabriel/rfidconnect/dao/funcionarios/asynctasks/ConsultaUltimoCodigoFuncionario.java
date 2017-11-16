@@ -1,4 +1,4 @@
-package tcc.zulian.gabriel.rfidconnect.dao;
+package tcc.zulian.gabriel.rfidconnect.dao.funcionarios.asynctasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,29 +16,26 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import tcc.zulian.gabriel.rfidconnect.bo.ItemBO;
-import tcc.zulian.gabriel.rfidconnect.vo.EntradaActivity;
-import tcc.zulian.gabriel.rfidconnect.vo.SaidaActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.funcionarios.GravaFuncionarioActivity;
+import tcc.zulian.gabriel.rfidconnect.vo.itens.GravaItemActivity;
 
 /**
  * Created by User on 14/08/2017.
  */
-public class ItemVerificaEstoqueEntradaDAO extends AsyncTask<String, Void, String> {
+public class ConsultaUltimoCodigoFuncionario extends AsyncTask<String, Void, String> {
     private Context context;
-    private ItemBO itemBO;
 
     ProgressDialog dialog;
-    EntradaActivity entradaActivity;
+    GravaFuncionarioActivity gravaFuncionarioActivity;
 
-    public ItemVerificaEstoqueEntradaDAO(EntradaActivity entradaActivity, ItemBO itemBO) {
-        this.entradaActivity = entradaActivity;
-        this.context = entradaActivity;
-        this.itemBO = itemBO;
+    public ConsultaUltimoCodigoFuncionario(GravaFuncionarioActivity gravaFuncionarioActivity) {
+        this.gravaFuncionarioActivity = gravaFuncionarioActivity;
+        this.context = gravaFuncionarioActivity;
     }
 
     @Override
     protected void onPreExecute() {
-        dialog = new ProgressDialog(entradaActivity);
+        dialog = new ProgressDialog(gravaFuncionarioActivity);
         dialog.setTitle("Carregando...");
         dialog.setIndeterminate(true);
         dialog.show();
@@ -49,9 +45,9 @@ public class ItemVerificaEstoqueEntradaDAO extends AsyncTask<String, Void, Strin
     protected String doInBackground(String... strings) {
 
         try {
-            String link = "http://vinhosopra.com.br/json/rfid/con_item_estoque.php";
+            String link = "http://vinhosopra.com.br/json/rfid/con_funcionario_proximo_codigo.php";
             String data = URLEncoder.encode("codigo", "UTF-8") + "=" + URLEncoder.encode(
-                    String.valueOf(itemBO.getCodigo()), "UTF-8" );
+                    String.valueOf(1), "UTF-8" );
 
             URL url = new URL(link);
             URLConnection conn = url.openConnection();
@@ -84,6 +80,7 @@ public class ItemVerificaEstoqueEntradaDAO extends AsyncTask<String, Void, Strin
     protected void onPostExecute(String result) {
 
         Log.d("Resultado", "[" + result + "]");
+        Integer ultimoCod = 0;
 
         try {
             JSONObject jObjectGeral = new JSONObject(result);
@@ -93,20 +90,14 @@ public class ItemVerificaEstoqueEntradaDAO extends AsyncTask<String, Void, Strin
             if (success == 0) {
                 Toast.makeText(context, "OOPs! Algo deu errado.", Toast.LENGTH_LONG).show();
             } else {
-                JSONArray jEstoque = jObjectGeral.getJSONArray("estoques");
-                JSONObject objeto = jEstoque.getJSONObject(0);
-                itemBO.getEstoqueBO().setQuantidade(objeto.getInt("quantidade"));
-                itemBO.setDescricao(objeto.getString("descricao"));
+                ultimoCod = jObjectGeral.getInt("proximo_codigo");
             }
 
         } catch (JSONException e) {
             Toast.makeText(context, "OOPs! Algo deu errado." + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        Log.d("TESTE=", itemBO.getEstoqueBO().getQuantidade() + "");
-
-        entradaActivity.edtDescricao.setText(itemBO.getDescricao());
-        entradaActivity.edtQntdEstoque.setText(String.valueOf(itemBO.getEstoqueBO().getQuantidade()));
+        gravaFuncionarioActivity.edtCodigo.setText(String.valueOf(ultimoCod));
 
         dialog.dismiss();
     }
