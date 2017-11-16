@@ -34,22 +34,6 @@
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/filter_nfc" />
         </activity>
-        <activity android:name=".vo.GravacaoActivity">
-            <intent-filter>
-                <action android:name="android.nfc.action.TAG_DISCOVERED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="tcc.zulian.gabriel.rfidconnect.vo.PrincipalActivity" />
-            <meta-data
-                android:name="android.nfc.action.TECH_DISCOVERED"
-                android:resource="@xml/filter_nfc" />
-        </activity>
         <activity android:name=".vo.itens.EntradaActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

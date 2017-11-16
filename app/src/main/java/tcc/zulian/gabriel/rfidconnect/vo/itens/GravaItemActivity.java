@@ -87,7 +87,7 @@ public class GravaItemActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {;
+    protected void onPause() {
         super.onPause();
         nfcOperations.disableDispatch();
     }
